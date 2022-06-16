@@ -1,0 +1,240 @@
+---
+title: "wine_report"
+author: "Yunus Alamri"
+date: '2022-06-16'
+output: html_document
+self_contained: no
+knit: (function(input, ...) {
+    rmarkdown::render(
+      input,
+      output_dir = "../"
+    )
+  })
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(here) # side note 1: I don't use Docker, and hence, the getwd() will not 
+              #              give the same directory as in the instructions
+              # side note 2: I think it is redundant to use here() as Rproj is doing the same job
+library(janitor)
+library(GGally)
+library(reactable)
+library(ggplot2)
+library(ggpubr)
+theme_set(theme_pubr())
+
+# init here()
+i_am("individual-assignment-2-YounisAlomari.Rproj")
+
+# loading the data from the Data folder, obviously on my machine:$
+redwine <- read.csv(here("data/winequality-red.csv"))
+
+# It is obvious that the pH column 9 has been separated to 2 words, which shouldn't be the case, 
+# a modification is needed names() is used to assign the new name for column 9, aka pH
+names(redwine)[9] <- "ph" 
+credwine <- redwine %>%
+  clean_names()
+
+# Second to naming, we have the questions of duplication in the data
+# For duplication, get_dupes() is used
+credwine %>% 
+  get_dupes() %>%
+  filter(dupe_count > 2)
+# We have 460 observations that are duplicated, 52 of which have more than 2 duplication
+
+# To clean the data, distinct() is used
+credwine <- distinct(credwine)
+
+
+```
+
+# Introduction
+
+Wine quality is a concern for people. One does not wish to drink any random alcoholic liquid, which might brought one's death. Wine quality is associated with the constituents. In this report, we will investigate the wine quality with respect to some of its major constituents and ingredients.
+
+# Data
+
+The following table list the parameters in the data set used in this report with a brief description about each parameter.
+
+| Variable             | Description                                                                                        |
+|----------------------|----------------------------------------------------------------------------------------------------|
+| Quality              | A score from 0 to 10 for the quality of the win, the higher the number, the better the quality.    |
+| Alcohol              | Alcohol's percentage in the wine.                                                                  |
+| Sulphates            | An antioxidant additive in the wine.                                                               |
+| pH                   | A numeric scale to describe the acidity and/or basicity of the wine.                               |
+| Density              | A measurement of the mass per volume, dependent on the percentages of the constituent of the wine. |
+| Total Sulfur Dioxide | The total concentration of the Sulfur Dioxide (SO~2~).                                             |
+| Free Sulfur Dioxide  | The free form of the Sulfur Dioxide (SO~2~).                                                       |
+| Chlorides            | Salts concentration in the wine.                                                                   |
+| Residual Suger       | Post production suger remnant in the wine.                                                         |
+| Citric Acid          | The concentration of the Citric acid in the wine.                                                  |
+| Volatile Acidity     | A measure of the low molecular weight (or steam distillate) fatty acids in wine                    |
+| Fixed Acidity        | The wine's nonvolatile acidity                                                                     |
+
+```{r}
+reactable(credwine)
+```
+
+Using glimpse() to show the data in a more compact form.
+
+```{r}
+glimpse(credwine)
+```
+
+The data is 1359 rows into 12 columns in size.
+
+# **Exploratory Data Analysis (EDA)**
+
+## Data statistics
+
+Using summary() we can visualize statistical summary information, however, before doing that, the variable "quality" must be excluded as it is a discrete variable. The problem with quality is not because it is discrete, but rather in the fact that these numbers are encoding of the wine quality, and thus,it was excluded.
+
+```{r}
+summary(select(credwine, -quality))
+```
+
+Nonetheless, a probability distribution can be made for the wine's quality.
+
+```{r}
+# The probability will be stored in pcredwine, were p stands for "Probability"
+credwine %>% 
+  count(quality) %>% 
+  mutate(probability = n / nrow(credwine)) -> pcredwine
+
+# We use ggplot() with geom_bar() to illustrate the probability from the previous step
+ggplot(pcredwine, aes(quality, probability)) +
+  geom_bar(stat="identity") 
+```
+
+It is apparent that most wines qualities lie in in the 5^th^ and 6^th^ scores, accounting for approximately 80% of the wines. The distribution appears to be symmetrical or slightly skewed to the left (negatively skewed).
+
+## Data correlations
+
+Using correlation heatmap to investigate the type and degree of correlation between the parameters.
+
+```{r}
+ggcorr(credwine, label = TRUE, hjust = 0.75, size = 2.5, color = "black")
+```
+
+The wine's quality appears to have positive correlations with:
+
+-   Alcohol (Mostly)
+
+-   Sulphates
+
+-   Citric Acid
+
+-   Fixed Acidity
+
+negative correlations with:
+
+-   pH
+
+-   Density
+
+-   Volatile Acidity (mostly)
+
+-   Chlorides
+
+-   Free Sulfur Dioxide
+
+-   Total Sulfur Dioxide
+
+and no correlation with:
+
+-   Residual Sugar
+
+In order to better visualize the effect of the variables, a trend fitting to the data is applied.
+
+For the positively correlated variables
+
+```{r}
+
+# Based on the correlation map above, there aren't any strong correlations between the variables
+# meaning, all the variable can convey a significantly non-redundant meaning to the wine quality 
+# and here we will be examining all of them.
+# Using ggarrange() from ggpubr library, we combined all the fits together in one graph
+# but first we have to store each graph in a variable to use it
+# the naming is the first 3 letters if one word (except pH "ph")
+# preceded by q2 to denote it is plotted with respect to quality
+
+
+# First the variables of positive correlations
+q2alc <- ggplot(credwine, aes(quality, alcohol)) +
+           geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+           geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2sul <- ggplot(credwine, aes(quality, sulphates)) +
+           geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+           geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2fa <- ggplot(credwine, aes(quality, fixed_acidity )) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2ca <- ggplot(credwine, aes(quality, citric_acid)) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+
+positive_corr <- ggarrange(q2alc, q2sul, q2ca, q2fa,
+                    ncol = 2, nrow = 2)
+```
+
+```{r}
+positive_corr
+```
+
+It is obvious that the alcohol continent of the wine highly impact the quality, followed by the citric acid. Nonetheless, the trend for the Sulphates and the Fixed acidity are not as tilted as alcohol's and citric acid's trends.
+
+For the negatively correlated variables:
+
+```{r}
+
+#Second the variables of negative correlations
+q2ph <- ggplot(credwine, aes(quality, ph)) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2den <-  ggplot(credwine, aes(quality, density)) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2fsd <- ggplot(credwine, aes(quality, free_sulfur_dioxide)) +
+           geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+           geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2tsd <- ggplot(credwine, aes(quality, total_sulfur_dioxide)) +
+           geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+           geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2chl <- ggplot(credwine, aes(quality, chlorides)) +
+           geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+           geom_smooth(method=lm, se=FALSE, colour = "red")
+
+q2rs <- ggplot(credwine, aes(quality, residual_sugar)) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+        
+q2va <- ggplot(credwine, aes(quality, volatile_acidity)) +
+          geom_jitter(width = 0.25, alpha = 0.5, colour = "blue") +
+          geom_smooth(method=lm, se=FALSE, colour = "red")
+        
+
+negative_corr <- ggarrange(q2ph, q2den, q2fsd, q2tsd, q2chl, q2va,
+                    ncol = 2, nrow = 3)
+```
+
+```{r}
+negative_corr
+```
+
+It is clear that volatile acidity has the highest negative effect on the wine quality followed by the density of the wine.
+
+# Conclusion
+
+Wine quality is affected by its constituents, some have small effect wither negative or positive. However, the results showed that the most important parameter in the wine quality were the alcohol content and the volatile acidity content of the wine. The more alcohol content in the wine the better the quality and the more volatile acidity in the wine the worse the quality. Nonetheless, it appears that most of the wines lie in the middle of the quality score spectrum with approximately 80% of the wines lie in the 5^th^ and the 6^th^ quality score.

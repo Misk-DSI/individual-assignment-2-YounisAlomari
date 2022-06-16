@@ -1,0 +1,86 @@
+  |                                                                            
+
+processing file: wine_report.Rmd
+  |...                                                                   |   4%
+  ordinary text without R code
+
+  |......                                                                |   9%
+label: setup (with options) 
+List of 1
+ $ include: logi FALSE
+
+  |.........                                                             |  13%
+  ordinary text without R code
+
+  |............                                                          |  17%
+label: unnamed-chunk-1
+  |...............                                                       |  22%
+  ordinary text without R code
+
+  |..................                                                    |  26%
+label: unnamed-chunk-2
+  |.....................                                                 |  30%
+  ordinary text without R code
+
+  |........................                                              |  35%
+label: unnamed-chunk-3
+  |...........................                                           |  39%
+  ordinary text without R code
+
+  |..............................                                        |  43%
+label: unnamed-chunk-4
+  |.................................                                     |  48%
+  ordinary text without R code
+
+  |.....................................                                 |  52%
+label: unnamed-chunk-5
+  |........................................                              |  57%
+  ordinary text without R code
+
+  |...........................................                           |  61%
+label: unnamed-chunk-6
+  |..............................................                        |  65%
+  ordinary text without R code
+
+  |.................................................                     |  70%
+label: unnamed-chunk-7
+  |....................................................                  |  74%
+  ordinary text without R code
+
+  |.......................................................               |  78%
+label: unnamed-chunk-8
+  |..........................................................            |  83%
+  ordinary text without R code
+
+  |.............................................................         |  87%
+label: unnamed-chunk-9
+  |................................................................      |  91%
+  ordinary text without R code
+
+  |...................................................................   |  96%
+label: unnamed-chunk-10
+  |......................................................................| 100%
+  ordinary text without R code
+
+
+output file: wine_report.knit.md
+
+"C:/Program Files/RStudio/bin/quarto/bin/pandoc" +RTS -K512m -RTS wine_report.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output pandoc298bc4e514eac.html --lua-filter "C:\Users\walht\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\walht\AppData\Local\R\win-library\4.2\rmarkdown\rmarkdown\lua\latex-div.lua" --self-contained --variable bs3=TRUE --standalone --section-divs --template "C:\Users\walht\AppData\Local\R\win-library\4.2\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\walht\AppData\Local\Temp\Rtmpq0BlA1\rmarkdown-str298bc65db245e.html" 
+Could not fetch http://wsl$/Ubuntu-22.04/home/yona/misk-DSI/individual-assignment-2-YounisAlomari/wine_report_files/figure-html/unnamed-chunk-5-1.png
+HttpExceptionRequest Request {
+  host                 = "wsl$"
+  port                 = 80
+  secure               = False
+  requestHeaders       = []
+  path                 = "/Ubuntu-22.04/home/yona/misk-DSI/individual-assignment-2-YounisAlomari/wine_report_files/figure-html/unnamed-chunk-5-1.png"
+  queryString          = ""
+  method               = "GET"
+  proxy                = Nothing
+  rawBody              = False
+  redirectCount        = 10
+  responseTimeout      = ResponseTimeoutDefault
+  requestVersion       = HTTP/1.1
+}
+ (ConnectionFailure user error (Network.Socket.gai_strerror not supported: 11001))
+Error: pandoc document conversion failed with error 61
+Execution halted
